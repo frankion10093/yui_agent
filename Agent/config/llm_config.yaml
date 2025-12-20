@@ -2,7 +2,7 @@
 llm:
   ollama:
     # ollama访问地址
-    base_url: http://8.148.5.68:11434
+    base_url: http://192.168.31.100:11434
     # llm模型
     model: gpt-oss:20b
     # 模型的温度(0-1)数字越大随机性越强

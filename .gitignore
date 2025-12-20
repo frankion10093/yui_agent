@@ -51,7 +51,8 @@ desktop.ini     # Windows 系统
 .project        # Eclipse
 .classpath      # Eclipse
 .settings/      # Eclipse
-
+.idea
+.DS_Store
 # 缓存/临时/备份文件
 *.swp           # Vim 临时文件
 *.swo           # Vim 临时文件

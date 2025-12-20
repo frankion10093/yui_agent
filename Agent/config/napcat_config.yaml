@@ -1,7 +1,7 @@
 napcat:
   config:
     # 这是napcat发起请求的基础路径
-    base_url: http://8.148.5.68:3000
+    base_url: http://192.168.31.100:3000
     # 这是监听websocket的基础路径
     base_ws_url: ws://192.168.31.100:5788/
     # 这是napcat的管理员QQ号
