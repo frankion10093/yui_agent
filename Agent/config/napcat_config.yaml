@@ -1,0 +1,29 @@
+napcat:
+  config:
+    # 这是napcat发起请求的基础路径
+    base_url: http://192.168.31.100:3000
+    # 这是监听websocket的基础路径
+    base_ws_url: ws://192.168.31.100:5788/
+    # 这是napcat的管理员QQ号
+    admin: 2030236097
+    # 这是向napcat发起请求的超时时间
+    timeout: 10
+
+  qq_api:
+    发送群文本:
+      path: /send_group_msg
+      json:
+        {
+          "group_id": "(需要修改)填写你要发送信息的qq群号",
+          "message": [
+            {
+              "type": "这里需要填写上发送信息的类型at | text (at类型是你需要@人时并且发送信息时添加，text是只向指定群聊发送信息)",
+              "data": {
+                "at": "当type为at时，这里填写上要@的qq号，不为at时间不要加上key",
+                "text": "值这里填写上要发送的信息"
+              }
+            }
+          ]
+        }
+
+

@@ -1,0 +1,11 @@
+bilibili:
+  #基础url
+  base_url: "https://live-open.biliapi.com"
+  #房间号
+  room_id: "F270B3PWY4N45"
+  #直播间标题
+  app_id: 3634077863183534
+  #开发者id
+  accesskeyidValue: 'P4c11P4115De7Glb4StkFTPs'
+  #开发者密钥
+  secret_key: 'cI4sn7MNW1FtgH5IV0ASpSGXTBtSep'
