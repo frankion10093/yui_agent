@@ -1,0 +1,68 @@
+# ==========================
+# Python 核心忽略文件/文件夹
+# ==========================
+# Python 字节码文件（编译后的缓存文件）
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+
+# Python 缓存文件夹
+__pycache__/
+*.egg-info/
+.eggs/
+
+# 虚拟环境（各种常见命名）
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.env/
+
+# 项目打包/构建产物
+dist/
+build/
+*.egg
+*.whl
+
+# ==========================
+# 你的自定义忽略需求
+# ==========================
+# 忽略 logs 整个文件夹（末尾/表示文件夹，避免误判为文件）
+logs/
+
+# 忽略所有 .log 后缀的日志文件（全局匹配）
+*.log
+
+# ==========================
+# 通用辅助忽略（可选，提升实用性）
+# ==========================
+# 操作系统生成的文件
+.DS_Store       # Mac 系统
+Thumbs.db       # Windows 系统
+desktop.ini     # Windows 系统
+
+# 编辑器/IDE 配置文件（根据你的编辑器选择保留，无需则可删除）
+.vscode/        # VS Code
+.idea/          # PyCharm
+.project        # Eclipse
+.classpath      # Eclipse
+.settings/      # Eclipse
+
+# 缓存/临时/备份文件
+*.swp           # Vim 临时文件
+*.swo           # Vim 临时文件
+*.tmp           # 通用临时文件
+*.bak           # 通用备份文件
+*.backup        # 通用备份文件
+.coverage       # 测试覆盖率报告文件
+coverage.xml
+htmlcov/
+
+# 敏感配置文件（避免提交密钥、数据库密码等）
+*.conf
+*.ini
+!example.ini    # 例外：保留示例配置文件（前面加!表示不忽略）
