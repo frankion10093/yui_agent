@@ -11,6 +11,17 @@ llm:
     keep_alive: 120
     # 请求超时时间
     timeout: 60
+  siliconflow:
+    # ollama访问地址
+    base_url: https://api.siliconflow.cn/v1
+    # llm模型
+    model: deepseek-ai/DeepSeek-V3.2
+    # 模型的温度(0-1)数字越大随机性越强
+    temperature: 0.6
+    # 请求超时时间
+    timeout: 60
+    # 模型的api_key
+    api_key: sk-apiakdsksjonkqeeilvubghnsqholuwhvdpfpccesjrirprd
 
 
 
