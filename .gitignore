@@ -12,6 +12,7 @@
 __pycache__/
 *.egg-info/
 .eggs/
+output/
 
 # 虚拟环境（各种常见命名）
 venv/
@@ -53,6 +54,7 @@ desktop.ini     # Windows 系统
 .settings/      # Eclipse
 .idea
 .DS_Store
+
 # 缓存/临时/备份文件
 *.swp           # Vim 临时文件
 *.swo           # Vim 临时文件

@@ -7,7 +7,7 @@ napcat:
     # 这是napcat的管理员QQ号
     admin: 2030236097
     # 这是向napcat发起请求的超时时间
-    timeout: 10
+    timeout: 60
 
   qq_api:
     base_private_api:
@@ -22,5 +22,10 @@ napcat:
         "group_id": "",
         "message": []
       }
+    base_path:
+      private: "/send_private_msg"
+      group: "/send_group_msg"
+      禁言: "/set_group_ban"
+      群公告: "/_send_group_notice"
 
 

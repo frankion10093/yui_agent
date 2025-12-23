@@ -1,8 +1,10 @@
 import json
 import threading
+from datetime import datetime
+
 from langchain.tools import tool
 import pyautogui as pg
-from live import bilibili
+from plugin.live_plugin import bilibili
 
 #初始化b站实例
 b = bilibili()
@@ -61,10 +63,16 @@ def start_bilibili():
                 print(json_data["cmd"])
 
 
+def get_time():
+    """获取当前时间"""
+    now = datetime.now()
+    return now.strftime("%Y-%m-%d %H:%M:%S")
+
 LocalTools = [
     get_weather_for_location,
     mouse_move,
-    bilibili_live, open_app
+    bilibili_live, open_app,
+    get_time
 ]
 
 if __name__ == '__main__':
