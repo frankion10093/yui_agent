@@ -59,7 +59,7 @@ def start_bilibili():
             #转换为json格式
             json_str = row_data[16:].decode("UTF-8")
             json_data = json.loads(json_str)
-            if (json_data.get("cmd") != None):
+            if (json_data.get("cmd") is not None):
                 print(json_data["cmd"])
 
 

@@ -1,36 +1,42 @@
 from langchain.tools import tool,ToolRuntime
-from qq import qq_manager
+
+
 from plugin.jmcomic_plugin import get_jmcomic
 from thread_pool_manager import thread_pool_manager
 
+from qq import qq_manager
+from utils import logger
 
 
 @tool
-def send_qq_message(organization: str,target_id : str, message_list: list[dict] ) -> str:
+def send_qq_message( message_type: str, qq_id: str, reply_strategy: str, target_id: str, text: str) -> str | None:
     """
     这个方法用于给qq回复信息，你需要提供参数
-    organization: 消息的类型类型，private |  group,private表示私聊，group表示群聊。
-    target_id: 目标id，如果发送类型是私聊，则为对方的qq号，如果发送类型是群聊，则为群号。
-    message_list: 包含多个字典的列表，message_list列表中的每个字典的定义如下：
-    第一个参数data: dict
-    第二个参数type: str
-    type字段是at时表示艾特，data就包含qq的键，值为艾特的qq号
-    type字段是text时表示纯文本，data就包含text的键，值为要发送的文本内容
-    回复样例:
-    [{"type": "text", "data": {"text": "你好，我是机器人，很高兴为你服务！"}}]
-    [{"type": "at", "data": {"qq": "123456789"}},{"type": "text" "data": {"text": "你好，我是机器人，很高兴为你服务！"}}]
-    你可以根据不同的情景组合进行回复，每个字典表示一条消息，可以随意组合
+    message_type: group | private
+    qq_id:群聊id或者私聊对象的id
+    reply_strategy: 是否艾特回复，at (概率为10%) | reply (概率为10%) | no (概率为80%)当私聊时不能为at
+    target_id: 目标id，当call为at时，target_id为艾特的qq号，当call为reply时，target_id为消息的id号，当reply_strategy的值为no时，target_id为None
+    text: 要发送的文本内容
     """
-    print("调用了发送qq消息")
-    print(message_list)
+
     try:
-        message = qq_manager.build_message(organization=organization,message_data=message_list,target_id=target_id)
-        # 发送消息
-        print(message)
-        response = qq_manager.send_request(notice=organization, data=message)
-        return f"{response}qq信息发送成功,无需进行任何操作"
+        print(message_type, qq_id, reply_strategy, target_id, text)
+        message_json = qq_manager.build_message(message_type,qq_id,reply_strategy, target_id,text)
+
+        if message_json is not None:
+            print(message_json)
+            res = qq_manager.send_request(message_type,message_json)
+            return f"{res} qq信息发送成功,无需进行任何操作"
+        else:
+            return f"消息构建失败无需再次尝试"
     except Exception as e:
-        return f"{e}发送失败,尝试重新发送"
+        logger.error("向qq发送消息失败",e)
+
+
+
+
+
+
 
 
 @tool
@@ -58,18 +64,17 @@ def get_plugin(plugin_name: str,**kwargs) -> str:
     """
     这个方法用于使用插件
     第一个参数为插件的名称，类型为str，
-    第二个参数需要根据不同插件需求提供不同的参数如下：
+    后续参数根据不同插件提供
     1.名称：jmcomic_plugin，功能：下载漫画的插件，需要用户提供一个seed: str,如‘123’，‘1231223’
     """
-    if plugin_name == 'jmcomic_plugin':
-        if kwargs is None:
-            return "参数不能为空"
-        if kwargs['kwargs']['seed'] is None:
-            return "seed不能为空"
-        print("异步启动下载漫画的任务")
-        thread_pool_manager.submit_back_executor("下载漫画的进程",get_jmcomic, kwargs['kwargs']['seed'])
-        return "任务启动成功"
-    return "插件不存在"
+    try:
+        if plugin_name == 'jmcomic_plugin':
+            thread_pool_manager.submit_back_executor("下载漫画的进程",get_jmcomic, kwargs['kwargs']['seed'])
+            return "任务启动成功"
+        return "插件不存在"
+    except Exception as e:
+        logger.error("发生报错",e)
+        return f"发生报错"
 
 def get_back_thread_pool() ->str:
     """这个方法用于查看后端线程池的状态,可以查看到后台运行的任务"""

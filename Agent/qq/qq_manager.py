@@ -16,7 +16,7 @@ class QQManager:
     #发送请求的基本路径
     base_url = None
     #监听请求的基本路径
-    base_ws_url =  None
+    base_ws_url = None
     #记录不同功能的的path
     base_path = None
     # 请求超时设置
@@ -26,7 +26,7 @@ class QQManager:
 
     def __init__(self):
         """需要初始化写死的参数在这里进行初始化"""
-            # 读取配置文件
+        # 读取配置文件
         try:
             path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'napcat_config.yaml')
             with open(path, 'r', encoding='utf-8') as f:
@@ -48,7 +48,6 @@ class QQManager:
         except Exception as e:
             logger.error("读取配置文件失败", e)
 
-
     def start_listen(self):
         """启动监听"""
         wb = websocket.create_connection(self.base_ws_url)
@@ -59,25 +58,42 @@ class QQManager:
             if msg != '':
                 self.msg_queue.put(msg)
 
-    def build_message(self, organization: str, message_data: list[dict], target_id: str) -> dict | None:
-        """构建qq消息准则，传入的值必须是不写死的，需要根据传入的消息类型进行构建，比如群聊才能传入at类型的参数"""
 
-        _api_ = None
+    def build_message(self, message_type: str, qq_id: str, reply_strategy: str, target_id: str, text: str):
+        message_json: dict
 
-        #判断消息类型
-        if organization == 'private':
-            _api_ = self.base_private_api
-            _api_['user_id'] = target_id
-        elif organization == 'group':
-            _api_ = self.base_group_api
-            _api_['group_id'] = target_id
+        if message_type == 'group':
+            message_json = self.base_group_api
+            message_json['group_id'] = qq_id
+        elif message_type == 'private':
+            message_json = self.base_private_api
+            message_json['user_id'] = qq_id
         else:
-            logger.error("消息类型错误")
+            logger.error("请填写正确的message_type")
             return None
-        #构建消息
-        _api_['message'] = message_data
 
-        return _api_
+        text_segment = {
+            "type": "text",
+            "data": {"text": text}
+        }
+
+        strategy_prefix_map = {
+            'at': {"type": "at", "data": {"id": target_id}},
+            'reply': {"type": "reply", "data": {"id": target_id}}
+        }
+
+        if reply_strategy in strategy_prefix_map:
+            message_json['message'] = [
+                strategy_prefix_map[reply_strategy],
+                text_segment
+            ]
+        elif reply_strategy == 'no':
+            message_json['message'] = [text_segment]
+        else:
+            logger.error("请填写正确的reply_strategy（可选值：at/reply/no）")
+            return None
+        return message_json
+
 
     def send_request(self, notice: str, data: dict) -> str:
         """这个方法用户判断获取的的消息类型，然后调用对应的api发送消息"""
@@ -89,12 +105,12 @@ class QQManager:
             return f"没有{notice}这个方法哦"
         try:
             #发送消息，然后处理后的napcat返回的 message
-            response = rq.post(url = self.base_url + self.base_path[notice], json = data, timeout = self.timeout).json()
-            return response.get('message','')
+            response = rq.post(url=self.base_url + self.base_path[notice], json=data, timeout=self.timeout).json()
+            return response.get('message', '')
         except Exception as e:
             logger.error("发送消息失败", e)
 
-    def parse_group_message_to_log(self,msg_event: dict) -> str:
+    def parse_group_message_to_log(self, msg_event: dict) -> str:
         """
         将OB11协议的消息事件（群聊/私聊）解析为标准化日志字符串
         :param msg_event: 消息事件字典（符合OB11 Message结构，支持group/private类型）
@@ -156,7 +172,7 @@ class QQManager:
                 elif seg_type == "image":
                     # 图片消息（显示图片ID/URL标识）
                     img_id = seg_data.get("image_id", seg_data.get("url", "未知图片"))
-                    content_parts.append(f"[图片:{img_id[:8]}...]")  # 截断ID避免过长
+                    content_parts.append(f"[图片:{img_id}...]")  # 截断ID避免过长
                 elif seg_type == "at":
                     # @消息
                     at_qq = seg_data.get("qq", "未知")
@@ -197,15 +213,13 @@ class QQManager:
         print(formatted_log)
         return formatted_log
 
+
 qq_manager = QQManager()
-
-
 
 if __name__ == '__main__':
     qq_message = QQManager()
-    qq_message.send_request("禁言",                    {
-                        "group_id": 533350129,
-                        "user_id": 2639045525,
-                        "duration": 10
-                    })
-
+    qq_message.send_request("禁言", {
+        "group_id": 533350129,
+        "user_id": 2639045525,
+        "duration": 10
+    })

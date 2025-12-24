@@ -53,7 +53,9 @@ def setup_logger():
     logger.addHandler(console_handler)
 
     # -------------------------- 文件处理器（无颜色，避免乱码） --------------------------
-    log_dir = "logs"
+
+    log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"logs")
+
     os.makedirs(log_dir, exist_ok=True)
     file_handler = RotatingFileHandler(
         filename=os.path.join(log_dir, "app.log"),

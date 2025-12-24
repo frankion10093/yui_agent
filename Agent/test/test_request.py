@@ -2,8 +2,18 @@ import requests as req
 
 response = req.post("http://192.168.31.100:3000/send_group_msg",
                     json=
-                    {'group_id': '1035300253',
-                     'message': [{'type': 'text', 'data': {'text': '喵~ 已经对用户2790817365执行了30秒禁言操作啦！'}}]}
+{
+    "user_id": "2030236097",
+    "message": [
+        {
+            "type": "music",
+            "data": {
+                "type": "qq",
+                "id": 11
+            }
+        }
+    ]
+}
                     )
 
 print(response.text)

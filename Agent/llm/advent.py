@@ -65,7 +65,7 @@ class Advent:
                 logger.error(e)
 
 
-chatbot = Advent(tools=QQTools,llm=build_siliconflow())
+chatbot = Advent(tools=QQTools)
 
 
 if __name__ == '__main__':
