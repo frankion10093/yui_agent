@@ -12,26 +12,26 @@ b = bilibili()
 
 @tool
 def get_weather_for_location(city: str) -> str:
-    """获取指定城市的天气。"""
+    """获取指定城市的天气（占位版）：输入 city，返回固定友好提示，并非实时天气。"""
     return f"{city}总是阳光明媚！"
 
 
 @tool
 def mouse_move(x: int, y: int) -> str:
-    """鼠标移动屏幕上的指定位置。"""
+    """将鼠标移动到屏幕坐标 (x, y)，单位为像素，需提供整数坐标。"""
     pg.moveTo(x, y)
     return f"鼠标移动到屏幕坐标({x},{y})"
 
 
 @tool
 def open_app(app_name: str) -> str:
-    """根据指定打开app的名字打开相应程序"""
+    """根据 app_name 生成已打开的提示文本；当前实现不真正启动应用。"""
     return f"{app_name}已经打开"
 
 
 @tool
 def bilibili_live(is_live: bool) -> str:
-    """开启或者关闭b站直播，提供True开启直播，False关闭直播"""
+    """控制 B 站直播：is_live=True 开启并启动监听线程，False 置 is_listening=False 以关闭。"""
     try:
         if is_live:
             if (b.init_bilibili()):
@@ -52,7 +52,7 @@ def bilibili_live(is_live: bool) -> str:
 
 
 def start_bilibili():
-    """监听b站直播信息"""
+    """监听 B 站直播弹幕并打印 cmd 字段。"""
     while b.is_listening:
         row_data = b.ws.recv()
         if len(row_data) >= 21:
@@ -64,7 +64,7 @@ def start_bilibili():
 
 
 def get_time():
-    """获取当前时间"""
+    """返回当前时间，格式 YYYY-MM-DD HH:MM:SS。"""
     now = datetime.now()
     return now.strftime("%Y-%m-%d %H:%M:%S")
 
