@@ -5,6 +5,7 @@ import atexit
 
 from utils import logger
 
+
 class ThreadPoolManager:
     def __init__(
             self,
@@ -24,8 +25,7 @@ class ThreadPoolManager:
         )
         logger.info(f"后台线程初始化成功，最大线程数为：{back_max_workers}")
 
-
-        self.futrue_map = {}
+        self.future_map = {}
         # 保存future对象
         self.front_future = []
         # 保存前台线程池的future对象
@@ -35,7 +35,7 @@ class ThreadPoolManager:
         atexit.register(self.shutdown_all)
         #注册退出函数，关闭线程池释放资源
 
-    def submit_front_executor(self,task_name: str, func, *args, **kwargs):
+    def submit_front_executor(self, task_name: str, func, *args, **kwargs):
         """
         提交到前台线程池执行函数
         :param func: 任务函数
@@ -52,13 +52,13 @@ class ThreadPoolManager:
             future = self.front_executor.submit(func, *args, **kwargs)
             future.add_done_callback(self.callback)
             #map保存future对象
-            self.futrue_map[future] = task_name
+            self.future_map[future] = task_name
             #front_future保存前台线程池的future对象
             self.front_future.append(future)
         except Exception as e:
-            logger.error("任务提交失败",e)
+            logger.error("任务提交失败", e)
 
-    def submit_back_executor(self,task_name: str, func, *args, **kwargs):
+    def submit_back_executor(self, task_name: str, func, *args, **kwargs):
         """
         提交到后台线程池执行函数
         :param func: 任务函数
@@ -71,17 +71,15 @@ class ThreadPoolManager:
         else:
             task_name = f"{task_name}:{int(time.time())}"
 
-
         try:
             future = self.back_executor.submit(func, *args, **kwargs)
             future.add_done_callback(self.callback)
             #map保存future对象
-            self.futrue_map[future] = task_name
+            self.future_map[future] = task_name
             #front_future保存后台线程池的future对象
             self.back_future.append(future)
         except Exception as e:
-            logger.error("任务提交失败",e)
-
+            logger.error("任务提交失败", e)
 
     def get_front_executor_count(self) -> int:
         """
@@ -102,25 +100,25 @@ class ThreadPoolManager:
         return 0
 
     def callback(self, future):
-        task_name = self.futrue_map[future]
+        task_name = self.future_map[future]
         try:
             future.result()
             logger.info(f"{task_name}任务完成")
         except Exception as e:
-            logger.error("任务出错",e)
+            logger.error("任务出错", e)
         finally:
             if future in self.front_future:
                 self.front_future.remove(future)
             if future in self.back_future:
                 self.back_future.remove(future)
-            self.futrue_map.pop(future)
-            logger.info(f"任务{task_name}完成，剩余任务数量：{len(self.futrue_map)}")
+            self.future_map.pop(future)
+            logger.info(f"任务{task_name}完成，剩余任务数量：{len(self.future_map)}")
 
     def get_back_task_detail(self) -> list:
         """获取后台所有任务的详细信息（名称/状态/线程名）"""
         task_details = []
         for future in self.back_future:
-            task_name = self.futrue_map.get(future,"未知")
+            task_name = self.future_map.get(future, "未知")
             task_status = self.get_task_status(future)
             thread_name = None
             if future.running():
@@ -137,7 +135,7 @@ class ThreadPoolManager:
         """获取后台所有任务的详细信息（名称/状态/线程名）"""
         task_details = []
         for future in self.front_future:
-            task_name = self.futrue_map.get(future,"未知")
+            task_name = self.future_map.get(future, "未知")
             task_status = self.get_task_status(future)
             thread_name = None
             if future.running():
@@ -150,7 +148,7 @@ class ThreadPoolManager:
             })
         return task_details
 
-    def get_task_status(self,future):
+    def get_task_status(self, future):
         if future.running():
             return "运行中"
         elif future.cancelled():
@@ -175,9 +173,12 @@ thread_pool_manager = ThreadPoolManager()
 
 if __name__ == '__main__':
     t = ThreadPoolManager()
-    def test(msg: str,name: str) -> str:
+
+
+    def test(msg: str, name: str) -> str:
         while True:
             pass
+
 
     a = t.submit_front_executor(test, "hello", "world")
     t.get_front_executor_count()

@@ -7,6 +7,7 @@ from langchain.agents import create_agent
 from qq import qq_manager
 from utils import logger
 from tools import LocalTools,QQTools
+
 from llm.build_llm import build_ollama
 from llm.build_llm import build_siliconflow
 
@@ -16,9 +17,11 @@ class Advent:
 
     def __init__(self, tools=LocalTools,llm=build_ollama()):
         try:
-            parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            config_path = os.path.join(parent_dir, 'config', 'llm_config.yaml')
-            with open(config_path, 'r', encoding='utf-8') as f:
+            if llm is None:
+                logger.log('llm创建失败')
+                raise Exception('llm创建失败')
+            path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'config', 'llm_config.yaml')
+            with open(path, 'r', encoding='utf-8') as f:
                 #1 加载语言模型配置
                 temp = yaml.safe_load(f)
                 #2 初始化系统提示词
@@ -59,7 +62,7 @@ class Advent:
                 msg = qq_manager.msg_queue.get()
                 if msg != '' or None:
                     print("开始对话")
-                    chatbot.chat(msg)
+                    self.chat(msg)
                     print("结束对话")
             except Exception as e:
                 logger.error(e)

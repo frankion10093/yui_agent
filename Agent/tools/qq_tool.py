@@ -25,16 +25,12 @@ def send_qq_message( message_type: str, qq_id: str, reply_strategy: str, target_
 
         if message_json is not None:
             print(message_json)
-            res = qq_manager.send_request(message_type,message_json)
+            res = qq_manager.send_request(message_type, message_json)
             return f"{res} qq信息发送成功,无需进行任何操作"
         else:
             return f"消息构建失败无需再次尝试"
     except Exception as e:
         logger.error("向qq发送消息失败",e)
-
-
-
-
 
 
 
