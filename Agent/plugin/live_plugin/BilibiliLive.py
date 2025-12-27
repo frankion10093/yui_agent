@@ -1,4 +1,6 @@
 import os
+from typing import Optional
+
 import yaml
 import random
 import string
@@ -24,7 +26,7 @@ OP_AUTH_REPLY	8	服务器收到鉴权包后的回复
 
 
 
-class bilibili:
+class Bilibili:
     #这个是获取的accesskeyid
     accesskeyidValue = ''
     #这个是获取的secret_key
@@ -278,6 +280,15 @@ x-bili-timestamp:{timestamp}"""
         }
 
         return headers
+
+
+_bilibili: Optional['Bilibili'] = None
+
+def get_bilibili():
+    global _bilibili
+    if _bilibili is None:
+        _bilibili = Bilibili()
+    return _bilibili
 
 if __name__ == '__main__':
     pass

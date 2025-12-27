@@ -1,0 +1,19 @@
+message:
+  config:
+    #是开启自动回复
+    is_auto_reply: True
+    #自动回复的概率
+    auto_reply: 0.1
+    #三种回复概率:
+    #1.@回复概率
+    at_reply: 0.1
+    #2.选中消息回复
+    message_reply: 0.1
+    #3.直接回复
+    direct_reply: 0.8
+    #关键词回复，可是角色名称
+    keyword_list: ["yui","Yui","猫娘"]
+    #屏蔽关键词
+    block_keywords_list: ["特朗普","种族歧视"]
+
+

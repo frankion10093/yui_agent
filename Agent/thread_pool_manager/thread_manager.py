@@ -175,12 +175,4 @@ if __name__ == '__main__':
     t = ThreadPoolManager()
 
 
-    def test(msg: str, name: str) -> str:
-        while True:
-            pass
 
-
-    a = t.submit_front_executor(test, "hello", "world")
-    t.get_front_executor_count()
-
-    print(a.result())

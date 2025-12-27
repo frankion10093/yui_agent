@@ -1,15 +1,19 @@
 import json
-import queue
+from asyncio import Event
+from typing import Optional
 
-import requests as rq
-import websocket
+import aiohttp
+
+import websockets
 import yaml
 import os
 
 from pydantic import BaseModel
 
 from utils import logger
-from .qq_method.parse_group_message_to_log import ParseGroupMessageToLogMixin
+
+from async_task_manager import get_async_task_manager,BaseAsyncTask
+from message import get_message_manager
 
 
 class QQBaseConfig(BaseModel):
@@ -29,9 +33,8 @@ class QQApiConfig(BaseModel):
     base_path: dict
 
 
-class QQManager(ParseGroupMessageToLogMixin):
+class QQManager(BaseAsyncTask):
     """QQ消息构造器"""
-    msg_queue = queue.Queue(maxsize=1000)
 
     def __init__(self):
         """需要初始化写死的参数在这里进行初始化"""
@@ -49,7 +52,7 @@ class QQManager(ParseGroupMessageToLogMixin):
                 api = base['qq_api']
                 self.base_config = QQBaseConfig(**config)
                 self.api_config = QQApiConfig(**api)
-                logger.info("napcat_config.yaml配置文件加载成功")
+                logger.info("QQ管理器初始化成功")
 
         except FileNotFoundError as e:
             logger.error("napcat_config.yaml配置文件不存在: %s", str(e))
@@ -58,16 +61,22 @@ class QQManager(ParseGroupMessageToLogMixin):
         except Exception as e:
             logger.error("读取配置文件失败: %s", str(e))
 
-    def start_listen(self):
+    async def run(self, abort_flag: Event):
+        _async_task_manager = get_async_task_manager()
+        _message_manager = get_message_manager()
+        print("开启监听QQ消息")
         """启动监听"""
-        wb = websocket.create_connection(self.base_config.base_ws_url)
-        while True:
-            msg = wb.recv()
-            msg = json.loads(msg)
-            msg = self.parse_group_message_to_log(msg)
-            print(msg)
-            if msg != '':
-                self.msg_queue.put(msg)
+        async with websockets.connect(self.base_config.base_ws_url) as websocket:
+            while not abort_flag.is_set():
+                msg = await websocket.recv()
+                msg = json.loads(msg)
+                await _message_manager.add_message(msg)
+
+    @property
+    def task_name(self) -> str:
+        return "QQManager"  # 同名任务的唯一标识
+
+
 
     def build_message(self, message_type: str, qq_id: str, reply_strategy: str, target_id: str, text: str):
         message_json: dict
@@ -104,7 +113,7 @@ class QQManager(ParseGroupMessageToLogMixin):
             return None
         return message_json
 
-    def send_request(self, notice: str, data: dict) -> str:
+    async def send_request(self, notice: str, data: dict) -> str:
         """这个方法用户判断获取的的消息类型，然后调用对应的api发送消息"""
         if notice == '' or data is None:
             return "notice参数为空请重新构建"
@@ -116,13 +125,27 @@ class QQManager(ParseGroupMessageToLogMixin):
             url: str = self.base_config.base_url + self.api_config.base_path[notice]
             timeout: int = self.base_config.timeout
             #发送消息，然后处理后的napcat返回的 message
-            response = rq.post(url=url, json=data, timeout=timeout).json()
+
+            async with aiohttp.ClientSession() as seesion:
+                async with seesion.post(url=url, json=data,timeout=timeout) as res:
+                    response = await res.json()
             return response.get('message', '')
         except Exception as e:
             logger.error("发送消息失败", e)
 
 
-qq_manager = QQManager()
+_qq_manager: Optional[QQManager] = None
+
+def get_qq_manager() -> QQManager:
+    """
+    获取异步任务管理器单例
+    :return: AsyncTaskManager实例
+    """
+    global _qq_manager
+    if _qq_manager is None:
+        _qq_manager = QQManager()
+    return _qq_manager
 
 if __name__ == '__main__':
     qq_message = QQManager()
+
