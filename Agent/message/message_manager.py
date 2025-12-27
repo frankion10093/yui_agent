@@ -118,7 +118,8 @@ class MessageManager:
                     return False, ''
                 else:
                     print(rand_float, self.message_config.auto_reply)
-                    print("触发自动回复")
+            else:
+                return False, ''
         else:
             print("触发关键词回复")
 
@@ -128,7 +129,7 @@ class MessageManager:
         # print(self.message_config.direct_reply)
         # print(self.message_config.direct_reply,self.message_config.direct_reply+self.message_config.at_reply)
         # print(rand_float)
-        reply_mode: str = '(这条信息回复方式:'
+        reply_mode: str = '(回复方式:'
         if 0.0 <= rand_float < self.message_config.direct_reply:
             reply_mode += "直接回复)"
         elif self.message_config.direct_reply <= rand_float < self.message_config.at_reply + self.message_config.direct_reply:

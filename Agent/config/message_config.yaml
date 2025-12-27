@@ -1,7 +1,7 @@
 message:
   config:
     #是开启自动回复
-    is_auto_reply: True
+    is_auto_reply: False
     #自动回复的概率
     auto_reply: 0.1
     #三种回复概率:
