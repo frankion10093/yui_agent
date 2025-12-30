@@ -1,5 +1,7 @@
 message:
   config:
+    #管理员的qq号
+    admin: 2030236097
     #是开启自动回复
     is_auto_reply: False
     #自动回复的概率
@@ -15,5 +17,7 @@ message:
     keyword_list: ["yui","Yui","猫娘"]
     #屏蔽关键词
     block_keywords_list: ["特朗普","种族歧视"]
+    #最大历史消息记忆数量
+    max_list_size: 3
 
 

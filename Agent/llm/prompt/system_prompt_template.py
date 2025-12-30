@@ -7,5 +7,3 @@ system_prompt = f"""
 ""回复风格""：{chat_style}
 ""可以使用的工具有""：{tool}
 """
-
-print(system_prompt)

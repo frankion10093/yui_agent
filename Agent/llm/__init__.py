@@ -1,8 +1,8 @@
-from llm.advent import Advent
-from llm.advent import get_advent
-from llm.build_llm import build_siliconflow
-from llm.build_llm import build_ollama
+from llm.advent_manager import Agent
+from llm.advent_manager import get_agent
+from llm.build_llm import build_core_llm
+from llm.build_llm import build_vl_llm
 
-__all__ = ['Advent', 'build_siliconflow', 'build_ollama']
+__all__ = ['Agent', 'build_core_llm','build_vl_llm','get_agent']
 
 

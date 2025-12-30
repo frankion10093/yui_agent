@@ -115,7 +115,10 @@ class ThreadPoolManager:
             logger.info(f"任务{task_name}完成，剩余任务数量：{len(self.future_map)}")
 
     def get_back_task_detail(self) -> list:
-        """获取后台所有任务的详细信息（名称/状态/线程名）"""
+        """
+        获取后台所有任务的详细信息（名称/状态/线程名）
+        :return 返回后台任务的详细信息列表
+        """
         task_details = []
         for future in self.back_future:
             task_name = self.future_map.get(future, "未知")
@@ -132,7 +135,10 @@ class ThreadPoolManager:
         return task_details
 
     def get_front_task_detail(self) -> list:
-        """获取后台所有任务的详细信息（名称/状态/线程名）"""
+        """
+        获取前台所有任务的详细信息（名称/状态/线程名）
+        :return 返回后台任务的详细信息列表
+        """
         task_details = []
         for future in self.front_future:
             task_name = self.future_map.get(future, "未知")

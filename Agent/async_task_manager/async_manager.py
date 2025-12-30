@@ -3,9 +3,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, Callable, Any
 from asyncio import Task, Event, Lock
-
-# 配置日志
-logger = logging.getLogger(__name__)
+from utils import logger
 
 # ------------------------------
 # 抽象异步任务类（所有异步任务的基类）
@@ -248,5 +246,6 @@ def get_async_task_manager() -> AsyncTaskManager:
 
 
 if __name__ == "__main__":
-    async_task_manager = get_async_task_manager()
+    a = AsyncTaskManager()
+    # async_task_manager = get_async_task_manager()
 

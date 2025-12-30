@@ -2,24 +2,24 @@ import asyncio
 
 from async_task_manager import get_async_task_manager
 from qq import get_qq_manager
-from llm import get_advent
+from llm import get_agent
 from thread_pool_manager import thread_pool_manager
 from utils import print_main_page_yui
 
 
 async def main():
-    async_task_manager = get_async_task_manager()
-
-    advent = get_advent()
-
-    qq_manager = get_qq_manager()
-
-    print_main_page_yui()
-
     try:
+        async_task_manager = get_async_task_manager()
+
+        agent = get_agent()
+
+        qq_manager = get_qq_manager()
+
         await async_task_manager.add_task(qq_manager)
 
-        await async_task_manager.add_task(advent)
+        await async_task_manager.add_task(agent)
+
+        print_main_page_yui()
 
         await asyncio.Future()
     except Exception as e:

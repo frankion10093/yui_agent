@@ -3,11 +3,15 @@ from langchain.tools import tool
 
 from plugin.jmcomic_plugin import get_jmcomic
 from thread_pool_manager import thread_pool_manager
-
-from utils import logger
 from qq import get_qq_manager
 
+from utils import logger
+
+
 qq_manager = get_qq_manager()
+
+
+
 
 @tool
 async def send_qq_message( message_type: str, qq_id: str, reply_strategy: str, target_id: str, text: str) -> str | None:
@@ -15,21 +19,22 @@ async def send_qq_message( message_type: str, qq_id: str, reply_strategy: str, t
     这个方法用于给qq回复信息，你需要提供参数
     message_type: group | private
     qq_id:群聊id或者私聊对象的id
-    reply_strategy: 是否艾特回复，at  | reply  | no 当私聊时不能为at
+    reply_strategy: 是否艾特回复，at  | reply  | direct 当私聊时不能为at
     target_id: 目标id，当call为at时，target_id为艾特的qq号，当call为reply时，target_id为消息的id号，当reply_strategy的值为no时，target_id为None
     text: 要发送的文本内容
     """
 
     try:
+        #进行构建消息请求，这一步不交给ai，因为ai构建传参失败会导致程序崩溃
         message_json = qq_manager.build_message(message_type,qq_id,reply_strategy, target_id,text)
 
         if message_json is not None:
             response = await qq_manager.send_request(message_type, message_json)
-            return f"{response} qq信息发送成功,无需进行任何操作"
+            return f"{response}"
         else:
             return f"消息构建失败无需再次尝试"
     except Exception as e:
-        logger.error("向qq发送消息失败",e)
+        logger.error("向qq发送消息失败",str(e))
 
 
 
@@ -48,7 +53,7 @@ async def qq_utils(notice: str, message_data: dict) -> str:
     print(f"调用了{notice}功能")
     try:
         # 发送消息
-        response = await qq_manager.send_request(notice=notice, data=message_data)
+        response = await qq_manager.send_request(api_type=notice, data=message_data)
         return f"{response}"
     except Exception as e:
         return f"{e}发送失败,尝试重新发送"
@@ -60,11 +65,11 @@ def get_plugin(plugin_name: str,**kwargs) -> str:
     这个方法用于使用插件
     第一个参数为插件的名称，类型为str，
     后续参数根据不同插件提供
-    1.名称：jmcomic_plugin，功能：下载漫画的插件，需要用户提供一个seed: str,如‘123’，‘1231223’
+    1.名称：jmcomic_plugin，功能：下载漫画的插件，需要用户提供参数 seed: str,如‘123’，‘1231223’,message_type: group | private,target_id:发送目标的qq号或者群号
     """
     try:
         if plugin_name == 'jmcomic_plugin':
-            thread_pool_manager.submit_back_executor("下载漫画的进程",get_jmcomic, kwargs['kwargs']['seed'])
+            thread_pool_manager.submit_back_executor("下载漫画的进程",get_jmcomic, kwargs['kwargs']['seed'],kwargs['kwargs']['message_type'],kwargs['kwargs']['target_id'])
             return "任务启动成功"
         return "插件不存在"
     except Exception as e:

@@ -1,6 +1,9 @@
 
 
 def print_main_page_yui():
+    """
+    用于打印程序的启动标识
+    """
     # 定义ANSI颜色代码
     COLORS = [
         "\033[91m",  # 亮红
