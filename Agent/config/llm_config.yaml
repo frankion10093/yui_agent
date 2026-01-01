@@ -1,5 +1,11 @@
 # llm_config.yaml
 llm:
+  base_config:
+    # 是否打开视觉识别
+    isOpenVl: True
+    # 是否打开tts
+    isOpenTTs: True
+
   chat:
     ollama:
       # ollama访问地址

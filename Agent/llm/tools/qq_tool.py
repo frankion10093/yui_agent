@@ -78,8 +78,8 @@ def get_plugin(plugin_name: str,**kwargs) -> str:
 
 @tool
 def get_back_thread_pool() ->str:
-    """这个方法用于查看后端线程池的状态,可以查看到后台运行的任务"""
-    return thread_pool_manager.get_back_task_detail()
+    """这个方法用于查看前后端线程池的状态,可以查看到后台运行的任务"""
+    return "前端:"+str(thread_pool_manager.get_front_task_detail())+"后端:"+str(thread_pool_manager.get_back_task_detail())
 
 QQTools = [
     send_qq_message,

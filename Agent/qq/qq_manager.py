@@ -14,7 +14,7 @@ from yaml import YAMLError
 
 from utils import logger
 
-from async_task_manager import get_async_task_manager,BaseAsyncTask
+from async_task_manager import get_async_task_manager, BaseAsyncTask
 from message import get_message_manager
 
 
@@ -42,7 +42,6 @@ class QQManager(BaseAsyncTask):
         """需要初始化写死的参数在这里进行初始化"""
 
         self.ws_conn: Optional["websockets"] = None
-
 
         # 读取配置文件
         try:
@@ -105,8 +104,6 @@ class QQManager(BaseAsyncTask):
     @property
     def task_name(self) -> str:
         return "QQManager"  # 同名任务的唯一标识
-
-
 
     def build_message(self, message_type: str, qq_id: str, reply_strategy: str, target_id: str, text: str):
         """
@@ -172,7 +169,7 @@ class QQManager(BaseAsyncTask):
             timeout: int = self.base_config.timeout
             #发送消息，然后处理后的napcat返回的 message
             async with aiohttp.ClientSession() as seesion:
-                async with seesion.post(url=url, json=data,timeout=timeout) as res:
+                async with seesion.post(url=url, json=data, timeout=timeout) as res:
                     if res.status == 200:
                         return "发送成功，无需重复进行操作"
                     else:
@@ -182,6 +179,7 @@ class QQManager(BaseAsyncTask):
 
 
 _qq_manager: Optional[QQManager] = None
+
 
 def get_qq_manager() -> QQManager:
     """
@@ -193,6 +191,6 @@ def get_qq_manager() -> QQManager:
         _qq_manager = QQManager()
     return _qq_manager
 
+
 if __name__ == '__main__':
     qq_message = QQManager()
-

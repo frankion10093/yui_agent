@@ -3,9 +3,9 @@ message:
     #管理员的qq号
     admin: 2030236097
     #是开启自动回复
-    is_auto_reply: False
+    is_auto_reply: True
     #自动回复的概率
-    auto_reply: 0.1
+    auto_reply: 0.05
     #三种回复概率:
     #1.@回复概率
     at_reply: 0.1

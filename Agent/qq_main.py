@@ -29,7 +29,8 @@ async def main():
 def qq_main():
     asyncio.run(main())
 
-thread_pool_manager.submit_front_executor("qq",qq_main)
+
+thread_pool_manager.submit_front_executor("qq", qq_main)
 
 while True:
     pass

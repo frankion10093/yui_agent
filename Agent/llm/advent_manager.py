@@ -38,7 +38,7 @@ class Agent(BaseAsyncTask):
     def __init__(self):
         try:
             self.tools = QQTools
-            self.core_llm = build_core_llm('siliconflow')
+            self.core_llm = build_core_llm('ollama')
             self.vl_llm,self.vl_llm_name = build_vl_llm('siliconflow')
             if self.core_llm is None:
                 logger.log('llm创建失败')
@@ -150,6 +150,10 @@ class Agent(BaseAsyncTask):
         except Exception as e:
             logger.error("请求失败",str(e))
             return ''
+
+
+
+
 
 _agent: Optional['Agent'] = None  # 正确的类型注解 + 初始值
 

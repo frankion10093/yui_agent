@@ -43,7 +43,6 @@ def build_vl_llm(llm_name : str):
     :return:
     """
     try:
-
         with open(path, 'r',encoding='utf-8') as f:
             config = yaml.safe_load(f)
         #这里并没有提供本地功能，直接使用通用的openai接口

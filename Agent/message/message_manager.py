@@ -11,7 +11,6 @@ from yaml import YAMLError
 
 from utils import logger
 
-
 """
 是否开启主动回复: 回复消息本身概率 三种回复的概率 ： @回复概率率10，消息回复概率10，直接回复概率80
 依赖关键词或者被@之后回复概率100
@@ -20,41 +19,41 @@ from utils import logger
 
 class MessageConfig(BaseModel):
     is_auto_reply: bool
-    #自动回复概率
+    # 自动回复概率
     auto_reply: float
-    #1.@回复概率
+    # 1.@回复概率
     at_reply: float
-    #2.选中消息回复概率
+    # 2.选中消息回复概率
     message_reply: float
-    #3.直接回复概率
+    # 3.直接回复概率
     direct_reply: float
-    #关键词回复，可是角色名称
+    # 关键词回复，可是角色名称
     keyword_list: List[str]
-    #屏蔽关键词
+    # 屏蔽关键词
     block_keywords_list: List[str]
-    #最大记忆历史消息
+    # 最大记忆历史消息
     max_list_size: int
 
 
 class MessageManager:
-    #信息管理器配置
+    # 信息管理器配置
     message_config: Optional['MessageConfig'] = None
 
-    #异步存存储qq或者之后直播功能的信息
+    # 异步存存储qq或者之后直播功能的信息
     __qq_message_queue = asyncio.Queue(maxsize=200)
 
-    #同步存储用于存储本地对话信息
+    # 同步存储用于存储本地对话信息
     __local_message_queue = queue.Queue(maxsize=200)
 
-    #历史消息
-    # __message_map: Dict[str,List[str]] = {}
+    # 历史消息
+    #  __message_map: Dict[str,List[str]] = {}
 
-    #最大能存储的历史消息数量
+    # 最大能存储的历史消息数量
     __max_list_size: int = 0
 
     def __init__(self):
         try:
-            #初始化消息管理器配置
+            # 初始化消息管理器配置
             path = os.path.join(
                 os.path.dirname(os.path.dirname(__file__)),
                 "config",
@@ -81,25 +80,23 @@ class MessageManager:
             logger.warning("收到空消息")
             return
 
-        #将消息进行过滤
+        # 将消息进行过滤
         isfilter = self.filter(row_message)
 
         if isfilter:
             return
 
-        #判断是否存在文件或者图片，如果存在需要进行的操作（待实现）
-        #---------------------------------------------------------
+        # 判断是否存在文件或者图片，如果存在需要进行的操作（待实现）
+        # ---------------------------------------------------------
 
+        # ---------------------------------------------------------
 
-
-        #---------------------------------------------------------
-
-        #构建ai能看懂的信息
+        # 构建ai能看懂的信息
         message: str = await self.parse_qq_message(row_message)
 
         print(message)
 
-        #将消息放入消息队列
+        # 将消息放入消息队列
         await self.__qq_message_queue.put(message)
 
     async def get_message(self):
@@ -265,9 +262,6 @@ class MessageManager:
         )
         return formatted_log
 
-
-
-
     # def add_message_map(self,key: str, value: str):
     #     """
     #     这是用于向ai的记忆列表添加内容
@@ -281,8 +275,6 @@ class MessageManager:
     #     else:
     #         self.__message_map[key].pop(0)
     #         self.__message_map[key].append(value)
-
-
 
 
 _message_manager: Optional['MessageManager'] = None
