@@ -5,10 +5,11 @@ from datetime import datetime
 from langchain.tools import tool
 import pyautogui as pg
 
+from thread_pool_manager import get_thread_pool_manager
 from plugin.live_plugin import get_bilibili
 #初始化b站实例
 b = get_bilibili()
-
+thread_pool_manager = get_thread_pool_manager()
 
 @tool
 def get_weather_for_location(city: str) -> str:
@@ -68,10 +69,18 @@ def get_time():
     now = datetime.now()
     return now.strftime("%Y-%m-%d %H:%M:%S")
 
+@tool
+def get_thread_status() ->str:
+    """这个方法用于查看前后端线程池的状态,可以查看到后台运行的任务"""
+    return "前端:"+str(thread_pool_manager.get_front_task_detail())+"后端:"+str(thread_pool_manager.get_back_task_detail())
+
+
 LocalTools = [
     get_weather_for_location,
     mouse_move,
-    bilibili_live, open_app,
+    bilibili_live,
+    open_app,
+    get_thread_status,
     get_time
 ]
 

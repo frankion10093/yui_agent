@@ -1,22 +1,24 @@
 import asyncio
 from asyncio import Event
-from typing import Optional
+from typing import Optional, List
 import base64
 
 import aiohttp
 from langchain_core.messages import HumanMessage
 from langchain.agents import create_agent
+from langchain_core.tools import BaseTool
 from langgraph.graph.state import CompiledStateGraph
 from PIL import Image
 from io import BytesIO
 
 from utils import logger
 from llm.tools import QQTools
-from llm.build_llm import build_core_llm,build_vl_llm
+from llm.tools import LocalTools
+from llm.build_llm import build_core_llm, build_vl_llm
 
+from config import core_config
 from async_task_manager import BaseAsyncTask
 from llm.prompt.system_prompt_template import system_prompt
-
 
 from message import get_message_manager
 
@@ -35,14 +37,19 @@ class Agent(BaseAsyncTask):
 
     agent: Optional['CompiledStateGraph'] = None
 
-    def __init__(self):
+    def __init__(self,tools: List[BaseTool]):
         try:
-            self.tools = QQTools
-            self.core_llm = build_core_llm('ollama')
-            self.vl_llm,self.vl_llm_name = build_vl_llm('siliconflow')
+            self.tools = tools
+
+            if core_config.isOpenVl:
+                self.vl_llm = build_vl_llm(core_config.vl_llm)
+                self.vl_model = core_config.vl_model
+
+            self.core_llm = build_core_llm(core_config.core_llm)
             if self.core_llm is None:
                 logger.log('llm创建失败')
                 raise Exception('llm创建失败')
+
             #1 加载语言模型配置
             self.agent = create_agent(
                 model=self.core_llm,
@@ -72,7 +79,7 @@ class Agent(BaseAsyncTask):
                 await self.async_chat(msg)
                 print("结束对话")
             except Exception as e:
-                logger.error("对话出现错误",str(e))
+                logger.error("对话出现错误", str(e))
 
     async def async_chat(self, user_prompt: str) -> str:
         """
@@ -115,7 +122,7 @@ class Agent(BaseAsyncTask):
                     logger.error("请求视觉模型失败")
                     return ''
         with Image.open(BytesIO(image_byte)) as img:
-            resized_img = img.resize((160,160))
+            resized_img = img.resize((160, 160))
             buffer = BytesIO()
             # 根据原图格式保存（这里假设为PNG，可根据实际情况调整）
             resized_img.save(buffer, format=img.format or 'JPG')
@@ -123,8 +130,8 @@ class Agent(BaseAsyncTask):
         image_str = base64.b64encode(buffer.getvalue()).decode('utf-8')
         try:
             response = self.vl_llm.chat.completions.create(
-                model = self.vl_llm_name,
-                messages =
+                model=self.vl_model,
+                messages=
                 [
                     {
                         "role": "user",
@@ -132,7 +139,7 @@ class Agent(BaseAsyncTask):
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": "data:application/pdf;base64,"+ image_str,
+                                    "url": "data:application/pdf;base64," + image_str,
                                     "detail": "low"
                                 }
                             },
@@ -148,23 +155,44 @@ class Agent(BaseAsyncTask):
             print(response.choices[0].message.content)
             return response.choices[0].message.content
         except Exception as e:
-            logger.error("请求失败",str(e))
+            logger.error("请求失败", str(e))
             return ''
 
+    def chat(self, user_prompt: str) -> str:
+        """
+        同步的agent对话方法，用于本地的对话
+        :param user_prompt: str,接受用户传入一个字符串
+        :return: str,返回ai回复内容
+        """
+        #构造消息流
 
+        full_response = self.agent.invoke({
+            "messages": [
+                HumanMessage(user_prompt),
+            ]
+        })
 
+        msg = full_response['messages'][-1].content
+        print(msg)
+        return msg
 
 
 _agent: Optional['Agent'] = None  # 正确的类型注解 + 初始值
 
-def get_agent():
+agent: Optional['Agent'] = None
 
+def get_async_agent():
     global _agent
     if _agent is None:
-        _agent = Agent()
+        _agent = Agent(QQTools)
+    return _agent
+
+def get_agent():
+    global _agent
+    if _agent is None:
+        _agent = Agent(LocalTools)
     return _agent
 
 if __name__ == '__main__':
-    ad = Agent()
+    ad = Agent(LocalTools)
 
-    asyncio.run( ad.async_vl("https://ts1.tc.mm.bing.net/th/id/R-C.b462f4f34a59260f49ec40a176468c0e?rik=b2hc1zyYFJYtLw&riu=http%3a%2f%2fseopic.699pic.com%2fphoto%2f50020%2f5325.jpg_wh1200.jpg&ehk=NSMaSPA3bpcWKSEcxGbAy%2fmr%2bAeOu5I1qgC6xAJIae8%3d&risl=&pid=ImgRaw&r=0"))

@@ -2,6 +2,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 import concurrent
 import atexit
+from typing import Optional
 
 from utils import logger
 
@@ -10,7 +11,7 @@ class ThreadPoolManager:
     def __init__(
             self,
             front_max_workers: int = 4,
-            back_max_workers: int = 6,
+            back_max_workers: int = 5,
     ):
         """初始化线程池"""
         self.front_executor = concurrent.futures.ThreadPoolExecutor(
@@ -175,7 +176,18 @@ class ThreadPoolManager:
             logger.info("后台线程池关闭成功")
 
 
-thread_pool_manager = ThreadPoolManager()
+
+
+thread_pool_manager: Optional[ThreadPoolManager] = None
+
+def get_thread_pool_manager():
+    global thread_pool_manager
+    if thread_pool_manager is None:
+        thread_pool_manager = ThreadPoolManager()
+    return thread_pool_manager
+
+
+
 
 if __name__ == '__main__':
     t = ThreadPoolManager()

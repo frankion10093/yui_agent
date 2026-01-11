@@ -1,39 +1,62 @@
-import logging
-import numpy as np
+import os.path
+
+from llm import get_agent
+from funasr import AutoModel
+
 import speech_recognition as sr
-from modelscope.pipelines import pipeline
-from modelscope.utils.constant import Tasks
+from .ai_tts import tts
+from thread_pool_manager import get_thread_pool_manager
+from message import get_message_manager
 
-inference_pipeline = pipeline(
-        task=Tasks.auto_speech_recognition,
-        model='iic/SenseVoiceSmall',
-        model_revision="master",
-        device="cpu", )
 
-def ai_asr():
-    logging.info("🤖 开始录音，请说话...")
-    #初始化语音识别器，这个主要还是用来实现人声的识别的，并没有使用asr功能
-    r = sr.Recognizer()
-    r.pause_threshold = 1
-    try:
-        # 如果检测到人声，开始录音，采样率为16000，60秒内没有人声会抛出错误
-        with sr.Microphone(sample_rate=16000) as source:
-            r.adjust_for_ambient_noise(source, duration=1)
-            audio = r.listen(source, timeout=60)
-        #由于funasr的模型输入要求是float32，所以需要将音频数据转换为float32
-        audio_data = np.frombuffer(audio.get_raw_data(), dtype=np.int16)
-        # 转换为float32,为什么这里需要/ 32768.0,实际是为了达到归一化目的，int16就是2的15次方，所以除以32768.0就是归一化到[-1,1]
-        audio_data = audio_data.astype(np.float32)/ 32768.0
-        #这里调用funasr的模型进行语音识别，直接取[0]['text']，即返回第一个结果的文本
-        # text = model.generate(input=audio_data, sample_rate=16000)[0]["text"]
-        text = inference_pipeline(audio_data)[0]['text']
-        logging.info(text)
-        return text
+message_manager = get_message_manager()
 
-    except Exception as e:
-        logging.error("❌ Error:语音转文字出错！可能是模型加载出错或者输入设备问题！")
-        print(e)
-        return ''
 
-if __name__ == '__main__':
-    print(ai_asr())
+thread_pool_manager = get_thread_pool_manager()
+
+agent = get_agent()
+
+path = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "ai_model"
+)
+
+
+print(path)
+
+model = AutoModel(model=path+ r"/speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch", model_revision="v2.0.4",
+                  vad_model=path+r"/speech_fsmn_vad_zh-cn-16k-common-pytorch", vad_model_revision="v2.0.4",
+                  punc_model=path+r"/punc_ct-transformer_zh-cn-common-vocab272727-pytorch", punc_model_revision="v2.0.4",
+                  disable_update=True,disable_pbar=True
+                  )
+
+r = sr.Recognizer()
+r.pause_threshold = 3
+
+def asr():
+    while True:
+        try:
+
+            # 如果检测到人声，开始录音，采样率为16000，60秒内没有人声会抛出错误
+            print("开始录音")
+            with sr.Microphone(sample_rate=16000) as source:
+                r.adjust_for_ambient_noise(source, duration=1)
+                audio = r.listen(source, timeout=60)
+
+            print("录音结束")
+
+            wav_bite = audio.get_raw_data(convert_rate=16000, convert_width=2)
+
+            res = model.generate(input=wav_bite, batch_size_s=300,show_progress_bar=False,)[0]['text']
+
+            print(res)
+
+            if res.strip() != '':
+                tts(agent.chat(res))
+
+        except Exception as e:
+            print(e)
+
+
+if __name__ == "__main__":
+    asr()

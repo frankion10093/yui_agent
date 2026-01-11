@@ -1,10 +1,20 @@
 # llm_config.yaml
 llm:
-  base_config:
+  core_config:
     # 是否打开视觉识别
     isOpenVl: True
     # 是否打开tts
     isOpenTTs: True
+    # 核心模型指
+    core_llm: siliconflow
+    # 视觉模型指定
+    vl_llm: siliconflow
+    # 视觉模型选择
+    vl_model: Qwen/Qwen3-VL-32B-Instruct
+    #　语音生成指定
+    tts_llm: gpt_sovits
+
+
 
   chat:
     ollama:
@@ -29,7 +39,6 @@ llm:
       temperature: 0.6
       # 请求超时时间
       timeout: 60
-
   vl:
     siliconflow:
       base_url: https://api.siliconflow.cn/v1
@@ -37,5 +46,9 @@ llm:
       api_key: sk-apiakdsksjonkqeeilvubghnsqholuwhvdpfpccesjrirprd
       temperature: 0.7
       timeout: 60
+  tts:
+    gpt_sovits:
+      base_url: http://8.148.5.68:9880
 
-  
+
+

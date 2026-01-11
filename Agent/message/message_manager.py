@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from yaml import YAMLError
 
 from utils import logger
-
+from config import core_config
 """
 是否开启主动回复: 回复消息本身概率 三种回复的概率 ： @回复概率率10，消息回复概率10，直接回复概率80
 依赖关键词或者被@之后回复概率100
@@ -217,13 +217,15 @@ class MessageManager:
                     # 表情消息（显示表情ID）
                     content_parts.append(f"[表情:{seg_data.get('id', '未知')}]")
                 elif seg_type == "image":
-                    from llm import get_agent
-                    agent = get_agent()
+                    from llm import get_async_agent
+                    agent = get_async_agent()
                     # 图片消息（显示图片ID/URL标识）
-
                     img = seg_data.get("url", "未知图片")
-                    res = await agent.async_vl(img)
-                    content_parts.append(f"[表情包:{res}]")
+                    if core_config.isOpenVl:
+                        res = await agent.async_vl(img)
+                        content_parts.append(f"[表情包 | 图片:{res}]")
+                    else:
+                        content_parts.append(f"[表情包:未打开视觉识别功能]")
                 elif seg_type == "at":
                     # @消息
                     at_qq = seg_data.get("qq", "未知")
@@ -261,6 +263,13 @@ class MessageManager:
             message_id=message_id
         )
         return formatted_log
+
+    def add_local_message(self, row_message):
+        self.__local_message_queue.put(row_message)
+
+    def get_local_message_queue(self) -> str:
+        return self.__local_message_queue.get()
+
 
     # def add_message_map(self,key: str, value: str):
     #     """

@@ -2,17 +2,15 @@ from langchain.tools import tool
 
 
 from plugin.jmcomic_plugin import get_jmcomic
-from thread_pool_manager import thread_pool_manager
-from qq import get_qq_manager
+from thread_pool_manager import get_thread_pool_manager
+
 
 from utils import logger
-
+from qq import get_qq_manager
 
 qq_manager = get_qq_manager()
 
-
-
-
+thread_pool_manager = get_thread_pool_manager()
 @tool
 async def send_qq_message( message_type: str, qq_id: str, reply_strategy: str, target_id: str, text: str) -> str | None:
     """
@@ -76,15 +74,10 @@ def get_plugin(plugin_name: str,**kwargs) -> str:
         logger.error("发生报错",e)
         return f"发生报错"
 
-@tool
-def get_back_thread_pool() ->str:
-    """这个方法用于查看前后端线程池的状态,可以查看到后台运行的任务"""
-    return "前端:"+str(thread_pool_manager.get_front_task_detail())+"后端:"+str(thread_pool_manager.get_back_task_detail())
 
 QQTools = [
     send_qq_message,
     get_plugin,
-    get_back_thread_pool,
     qq_utils
 ]
 

@@ -59,7 +59,7 @@ def build_vl_llm(llm_name : str):
             logger.error(f"配置文件中未找到视觉模型'model'的配置")
 
         config = config["llm"]["vl"][llm_name]
-        return OpenAI(base_url=config['base_url'],api_key=config['api_key']), config['model']
+        return OpenAI(base_url=config['base_url'],api_key=config['api_key'])
 
     except FileNotFoundError as e:
         logger.error("无法找到配置文件llm_config",str(e))
