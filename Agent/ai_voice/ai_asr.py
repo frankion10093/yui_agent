@@ -24,10 +24,10 @@ path = os.path.join(
 
 print(path)
 
-model = AutoModel(model=path+ r"/speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch", model_revision="v2.0.4",
-                  vad_model=path+r"/speech_fsmn_vad_zh-cn-16k-common-pytorch", vad_model_revision="v2.0.4",
-                  punc_model=path+r"/punc_ct-transformer_zh-cn-common-vocab272727-pytorch", punc_model_revision="v2.0.4",
-                  disable_update=True,disable_pbar=True
+model = model = AutoModel(model="paraformer-zh", model_revision="v2.0.4",
+                  vad_model="fsmn-vad", vad_model_revision="v2.0.4",
+                  punc_model="ct-punc-c", punc_model_revision="v2.0.4",
+                  # spk_model="cam++", spk_model_revision="v2.0.2",
                   )
 
 r = sr.Recognizer()
